@@ -9,7 +9,8 @@ enum ChatType { individual, group }
 
 class ChatItem extends StatelessWidget {
   final ChatData data;
-  const ChatItem({Key? key, required this.data}) : super(key: key);
+  final void Function() onDelete;
+  const ChatItem({Key? key, required this.data, required this.onDelete}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,9 @@ class ChatItem extends StatelessWidget {
           ),
           SlidableAction(
             flex: 1,
-            onPressed: (_) {},
+            onPressed: (_) {
+              onDelete();
+            },
             backgroundColor: AppColors.negativePrimary,
             foregroundColor: Colors.white,
             icon: CupertinoIcons.trash,

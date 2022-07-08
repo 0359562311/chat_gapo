@@ -5,28 +5,11 @@ import 'package:chat_intern/theme/color_theme.dart';
 import 'package:chat_intern/theme/text_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class ListChatPage extends StatefulWidget {
-  const ListChatPage({Key? key}) : super(key: key);
-
-  @override
-  State<ListChatPage> createState() => _ListChatPageState();
-}
-
-class _ListChatPageState extends State<ListChatPage>
-    with SingleTickerProviderStateMixin, ChatListView {
-  late final TabController _tabController;
-  late final ChatController _chatController;
-  bool _isLoading = false;
-  ChatResponse? _response;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 4, vsync: this);
-    _chatController = ChatController(this);
-    _chatController.fetchData();
-  }
+class ListChatPage extends GetView<ChatController> {
+  
+  late final ChatController _chatController = Get.put(ChatController());
 
   @override
   Widget build(BuildContext context) {
@@ -86,34 +69,43 @@ class _ListChatPageState extends State<ListChatPage>
               style: AppTextTheme.headingMedium,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Image.asset(
-              "assets/ic_more.png",
-              width: 24,
-              height: 24,
+          InkWell(
+            onTap: (){},
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Image.asset(
+                "assets/ic_more.png",
+                width: 24,
+                height: 24,
+              ),
             ),
           ),
           SizedBox(
             width: 8,
           ),
-          Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Image.asset(
-              "assets/ic_folder.png",
-              width: 24,
-              height: 24,
+          InkWell(
+            onTap: (){},
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Image.asset(
+                "assets/ic_folder.png",
+                width: 24,
+                height: 24,
+              ),
             ),
           ),
           SizedBox(
             width: 8,
           ),
-          Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Image.asset(
-              "assets/ic_edit.png",
-              width: 24,
-              height: 24,
+          InkWell(
+            onTap: (){},
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Image.asset(
+                "assets/ic_edit.png",
+                width: 24,
+                height: 24,
+              ),
             ),
           ),
         ],
@@ -160,7 +152,7 @@ class _ListChatPageState extends State<ListChatPage>
 
   Widget _tabBar() {
     return TabBar(
-        controller: _tabController,
+        controller: _chatController.tabController,
         indicator: UnderlineTabIndicator(
             borderSide: BorderSide(color: AppColors.linkPrimary, width: 2)),
         tabs: [
@@ -193,7 +185,8 @@ class _ListChatPageState extends State<ListChatPage>
   }
 
   Widget _tabBarView() {
-    return _isLoading
+    return Obx(() {
+      return _chatController.isLoading.value
         ? Expanded(
             child: Center(
               child: CircularProgressIndicator(
@@ -202,43 +195,28 @@ class _ListChatPageState extends State<ListChatPage>
             ),
           )
         : Expanded(
-            child: TabBarView(
-            controller: _tabController,
+            child: _chatController.data.length > 0 ? TabBarView(
+            controller: _chatController.tabController,
             children: [
               ListView.builder(
                 itemBuilder: (context, index) {
-                  return ChatItem(
-                    data: _response!.data![index],
+                  return InkWell(
+                    onTap: (){},
+                    child: ChatItem(
+                      data: _chatController.data[index],
+                      onDelete: () {
+                        _chatController.delete(index);
+                      },
+                    ),
                   );
                 },
-                itemCount: _response?.data?.length ?? 0,
+                itemCount: _chatController.data.length,
               ),
               SizedBox(),
               SizedBox(),
               SizedBox(),
             ],
-          ));
+          ) : Center(child: Text("Bạn chưa có hội thoại nào!"),));
+    });
   }
-
-  @override
-  void showData(ChatResponse response) {
-    if (mounted)
-      setState(() {
-        _isLoading = false;
-        _response = response;
-      });
-  }
-
-  @override
-  void showLoading() {
-    if (mounted)
-      setState(() {
-        _isLoading = true;
-      });
-  }
-}
-
-abstract class ChatListView {
-  void showLoading();
-  void showData(ChatResponse response);
 }

@@ -1,26 +1,47 @@
 import 'package:chat_intern/network/response/chat_response.dart';
 import 'package:chat_intern/presentation/chat/chat_list.dart';
 import 'package:chat_intern/repository/chat_repository/chat_repository.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class ChatController {
-  ChatResponse? _response;
-  ChatResponse? get response => _response;
+class ChatController extends GetxController with SingleGetTickerProviderMixin {
+  late final TabController tabController;
+  RxList<ChatData> data = <ChatData>[].obs;
+  Rx<bool> isLoading = true.obs;
 
-  ChatListView _chatListView;
-  ChatController(this._chatListView);
+  ChatController();
+
+  @override
+  void onInit() {
+    super.onInit();
+    tabController = TabController(length: 4, vsync: this);
+    fetchData();
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
+
 
   ChatRepository _repository = ChatRepository();
 
   void fetchData() async {
-    _chatListView.showLoading();
+    isLoading(true);
     await Future.delayed(Duration(seconds: 1));
     _repository.fetchChatList().then((value) {
       value.when(
           success: (data) {
-            _response = data;
-            _chatListView.showData(response!);
+            this.data.call(data.data);
           },
           failure: (_) {});
+      isLoading(false);
     });
+  }
+
+  void delete(int index) {
+    print(index);
+    this.data.removeAt(index);
   }
 }
