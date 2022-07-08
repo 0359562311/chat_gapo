@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ListChatPage extends GetView<ChatController> {
-  
   late final ChatController _chatController = Get.put(ChatController());
 
   @override
@@ -21,7 +20,7 @@ class ListChatPage extends GetView<ChatController> {
           child: Column(
             children: [
               _appBar(),
-              _search(),
+              _searchBox(),
               _tabBar(),
               _tabBarView(),
             ],
@@ -71,7 +70,7 @@ class ListChatPage extends GetView<ChatController> {
             ),
           ),
           InkWell(
-            onTap: (){},
+            onTap: () {},
             child: Padding(
               padding: const EdgeInsets.all(6.0),
               child: Image.asset(
@@ -85,7 +84,7 @@ class ListChatPage extends GetView<ChatController> {
             width: 8,
           ),
           InkWell(
-            onTap: (){},
+            onTap: () {},
             child: Padding(
               padding: const EdgeInsets.all(6.0),
               child: Image.asset(
@@ -99,7 +98,7 @@ class ListChatPage extends GetView<ChatController> {
             width: 8,
           ),
           InkWell(
-            onTap: (){},
+            onTap: () {},
             child: Padding(
               padding: const EdgeInsets.all(6.0),
               child: Image.asset(
@@ -114,13 +113,14 @@ class ListChatPage extends GetView<ChatController> {
     );
   }
 
-  Widget _search() {
+  Widget _searchBox() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: SizedBox(
         width: double.infinity,
         height: 36,
         child: TextField(
+          controller: _chatController.textEditingController,
           style: AppTextTheme.bodyLarge
               .copyWith(color: AppColors.contentSecondary),
           decoration: InputDecoration(
@@ -135,6 +135,21 @@ class ListChatPage extends GetView<ChatController> {
               ),
             ),
             prefixIconConstraints: BoxConstraints(maxWidth: 36, minWidth: 36),
+            suffixIcon: Obx(
+              () => Visibility(
+                visible: _chatController.hasText.value,
+                child: InkWell(
+                  onTap: () {
+                    _chatController.clearText();
+                  },
+                  child: Icon(
+                    CupertinoIcons.clear_circled,
+                    size: 16,
+                    color: AppColors.contentSecondary,
+                  ),
+                ),
+              ),
+            ),
             fillColor: AppColors.backgroundSecondary,
             hintStyle: AppTextTheme.bodyLarge
                 .copyWith(color: AppColors.contentSecondary),
@@ -191,32 +206,36 @@ class ListChatPage extends GetView<ChatController> {
   Widget _tabBarView() {
     return Obx(() {
       return _chatController.isLoading.value
-        ? Expanded(
-            child: LoadingIndicator(),
-          )
-        : Expanded(
-            child: _chatController.data.isNotEmpty ? TabBarView(
-            controller: _chatController.tabController,
-            children: [
-              ListView.builder(
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: (){},
-                    child: ChatItem(
-                      data: _chatController.data[index],
-                      onDelete: () {
-                        _chatController.delete(index);
-                      },
-                    ),
-                  );
-                },
-                itemCount: _chatController.data.length,
-              ),
-              SizedBox(),
-              SizedBox(),
-              SizedBox(),
-            ],
-          ) : Center(child: Text("Bạn chưa có hội thoại nào!"),));
+          ? Expanded(
+              child: LoadingIndicator(),
+            )
+          : Expanded(
+              child: _chatController.data.isNotEmpty
+                  ? TabBarView(
+                      controller: _chatController.tabController,
+                      children: [
+                        ListView.builder(
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {},
+                              child: ChatItem(
+                                data: _chatController.data[index],
+                                onDelete: () {
+                                  _chatController.delete(index);
+                                },
+                              ),
+                            );
+                          },
+                          itemCount: _chatController.data.length,
+                        ),
+                        SizedBox(),
+                        SizedBox(),
+                        SizedBox(),
+                      ],
+                    )
+                  : Center(
+                      child: Text("Bạn chưa có hội thoại nào!"),
+                    ));
     });
   }
 }
