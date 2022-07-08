@@ -3,6 +3,7 @@ import 'package:chat_intern/presentation/chat/chat_controller.dart';
 import 'package:chat_intern/presentation/chat/chat_item.dart';
 import 'package:chat_intern/theme/color_theme.dart';
 import 'package:chat_intern/theme/text_theme.dart';
+import 'package:chat_intern/widgets/loading_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -145,6 +146,9 @@ class ListChatPage extends GetView<ChatController> {
                 borderSide: BorderSide(color: Colors.transparent),
                 borderRadius: BorderRadius.circular(100)),
           ),
+          onChanged: (text) {
+            _chatController.search(text);
+          },
         ),
       ),
     );
@@ -188,14 +192,10 @@ class ListChatPage extends GetView<ChatController> {
     return Obx(() {
       return _chatController.isLoading.value
         ? Expanded(
-            child: Center(
-              child: CircularProgressIndicator(
-                color: AppColors.contentPrimary,
-              ),
-            ),
+            child: LoadingIndicator(),
           )
         : Expanded(
-            child: _chatController.data.length > 0 ? TabBarView(
+            child: _chatController.data.isNotEmpty ? TabBarView(
             controller: _chatController.tabController,
             children: [
               ListView.builder(
