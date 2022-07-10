@@ -6,14 +6,14 @@ class TagButton extends StatelessWidget {
   final String title;
   final Color borderColor;
   final Color selectedColor;
-  final Color normalColor;
+  late final Color? normalColor;
   final bool selected;
   final VoidCallback onPressed;
   final double height;
   final TextStyle? selectedStyle;
   final double borderWidth;
 
-  const TagButton({
+  TagButton({
     Key? key,
     required this.title,
     required this.onPressed,
@@ -21,10 +21,12 @@ class TagButton extends StatelessWidget {
     this.borderColor = GPColor.workPrimary,
     this.selectedColor = GPColor.functionPositiveSecondary,
     this.selected = false,
-    this.normalColor = GPColor.bgSecondary,
+    this.normalColor,
     this.selectedStyle,
     this.borderWidth = 1.5,
-  }) : super(key: key);
+  }) : super(key: key) {
+    normalColor = GPColor.bgSecondary;
+  }
 
   @override
   Widget build(BuildContext context) {

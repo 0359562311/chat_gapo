@@ -14,7 +14,7 @@ import 'routes/routes.dart';
 
 void main() async {
   await GetStorage.init();
-  loadCache();
+  // loadCache();
   runApp(const MyApp());
   configLoading();
 }
@@ -66,7 +66,8 @@ class MyApp extends StatelessWidget {
           ],
           translationsKeys: AppTranslation.translations,
           initialRoute:
-              TokenManager.isLoggedIn() ? RouterName.tabbar : RouterName.login,
+              // TokenManager.isLoggedIn() ? RouterName.tabbar : RouterName.login,
+              RouterName.chat,
           debugShowCheckedModeBanner: false,
           getPages: Pages.pages,
           routingCallback: (value) {

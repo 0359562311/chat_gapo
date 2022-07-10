@@ -1,3 +1,4 @@
+import 'package:base_flutter/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:base_flutter/theme/themes.dart';
 
@@ -56,18 +57,34 @@ TextStyle? textStyle(GPTypography typo) {
     case GPTypography.headingXLarge:
       return AppThemes.instance.textTheme.headline6;
     case GPTypography.headingMedium:
-      return AppThemes.instance.textTheme.subtitle2;
+      return const TextStyle(
+          fontWeight: FontWeight.w600,
+          color: GPColor.contentPrimary,
+          fontSize: 16,
+          height: 24 / 16);
     case GPTypography.headingLarge:
       return AppThemes.instance.textTheme.subtitle1;
     case GPTypography.headingSmall:
       return AppThemes.instance.textTheme.caption;
 
     case GPTypography.bodyLarge:
-      return AppThemes.instance.textTheme.bodyText1;
+      return const TextStyle(
+          fontWeight: FontWeight.w400,
+          color: GPColor.contentPrimary,
+          fontSize: 16,
+          height: 24 / 16);
     case GPTypography.bodyMedium:
-      return AppThemes.instance.textTheme.bodyText2;
+      return const TextStyle(
+          fontWeight: FontWeight.w400,
+          color: GPColor.contentPrimary,
+          fontSize: 14,
+          height: 20 / 14);
     case GPTypography.bodySmall:
-      return AppThemes.instance.textTheme.overline;
+      return const TextStyle(
+          fontWeight: FontWeight.w400,
+          color: GPColor.contentPrimary,
+          fontSize: 12,
+          height: 16 / 12);
     case GPTypography.bodySmallBold:
       return AppThemes.instance.textTheme.overline
           ?.mergeFontWeight(FontWeight.bold);

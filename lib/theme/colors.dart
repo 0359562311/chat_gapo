@@ -4,17 +4,19 @@ class GPColor {
   GPColor._();
   static const Color workPrimary = Color(0xFF30A960);
 
-  static const Color contentPrimary = Color(0xFF212121);
-  static const Color contentSecondary = Color(0xFF969696);
+  static const Color contentPrimary = Color(0xFF26282C);
+  static const Color contentSecondary = Color(0xFF737682);
   static const Color contentTertiary = Color(0xFFC8CACF);
   static const Color contentInversePrimary = Color(0xFFFFFFFF);
 
   static const Color bgPrimary = Color(0xFFFFFFFF);
-  static const Color bgSecondary = Color(0xffFFF7EA);
+  static final Color bgSecondary = const Color(0xFF142141).withOpacity(0.06);
   static const Color bgTertiary = Color(0xFFF1F2F4);
   static const Color bgInversePrimary = Color(0xFF212121);
 
-  static const Color linePrimary = Color(0xFFDBDBDB);
+  static const Color negativePrimary = Color(0xFFE94040);
+
+  static const Color linePrimary = Color(0xFF30A960);
   static const Color lineSecondary = Color(0xFFF6F6F6);
   static const Color lineTertiary = Color(0xFFE9EAEC);
 
@@ -27,7 +29,7 @@ class GPColor {
   static const Color functionAccentWorkSecondary = Color(0xFF30A960);
   static const Color functionAccentWorkSecondary38 =
       Color.fromRGBO(86, 202, 118, 0.24);
-  static const Color functionLinkPrimary = Color(0xFF096DD9);
+  static const Color functionLinkPrimary = Color(0xFF30A960);
 
   static const Color functionPositivePrimary = Color(0xff56CA76);
   static const Color functionPositiveSecondary =
@@ -50,6 +52,7 @@ class GPColor {
   static const statePressSecondary = Color(0x33FFFFFF);
 
   static const red = Color(0xFFDC0000);
+  static const white = Color(0xFFFFFFFF);
   static const teal = Color(0xFF13C2C2);
   static const orange = Color(0xFFFFA940);
   static const blue = Color(0xFF1A99F4);

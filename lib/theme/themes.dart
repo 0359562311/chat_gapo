@@ -219,7 +219,7 @@ class AppThemes {
       color: GPColor.bgPrimary,
       iconTheme: IconThemeData(color: GPColor.contentPrimary),
     ),
-    colorScheme: const ColorScheme.light(
+    colorScheme: ColorScheme.light(
       primary: GPColor.workPrimary,
       primaryVariant: GPColor.bgSecondary,
     ),
@@ -245,12 +245,11 @@ class AppThemes {
       color: GPColor.darkBgPrimary,
       iconTheme: IconThemeData(color: GPColor.contentSecondary),
     ),
-    colorScheme: const ColorScheme.dark(
+    colorScheme: ColorScheme.dark(
       primary: GPColor.bgInversePrimary,
       primaryVariant: GPColor.bgSecondary,
     ),
-    snackBarTheme:
-        const SnackBarThemeData(backgroundColor: GPColor.bgSecondary),
+    snackBarTheme: SnackBarThemeData(backgroundColor: GPColor.bgSecondary),
     iconTheme: const IconThemeData(
       color: GPColor.bgInversePrimary,
     ),

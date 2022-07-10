@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:base_flutter/base/networking/base/app_exception.dart';
 import 'package:base_flutter/utils/log.dart';
 import 'package:base_flutter/utils/popup.dart';
-import 'package:base_flutter/utils/utils.dart';
 import 'package:get/get.dart';
 
 abstract class BaseController extends GetxController {

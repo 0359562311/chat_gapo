@@ -2,6 +2,27 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:base_flutter/configs/constants.dart';
 
+String _convertToNonSpecialCase(String str) {
+  str = str.toLowerCase();
+  for (int i = 1; i < _vietnameseChar.length; i++) {
+    for (int j = 0; j < _vietnameseChar[i].length; j++) {
+      str = str.replaceAll(_vietnameseChar[i][j], _vietnameseChar[0][i - 1]);
+    }
+  }
+  return str;
+}
+
+List<String> _vietnameseChar = [
+  "aeouidy",
+  "áàạảãâấầậẩẫăắằặẳẵ",
+  "éèẹẻẽêếềệểễ",
+  "óòọỏõôốồộổỗơớờợởỡ",
+  "úùụủũưứừựửữ",
+  "íìịỉĩ",
+  "đ",
+  "ýỳỵỷỹ",
+];
+
 extension StringExtension on String {
   /*
     Sử dụng để thêm params vào 1 string 
@@ -34,6 +55,11 @@ extension StringExtension on String {
 
   String hashSha256() {
     return sha256.convert(utf8.encode(this)).toString();
+  }
+
+  bool match(String other) {
+    return _convertToNonSpecialCase(this)
+        .contains(_convertToNonSpecialCase(other));
   }
 }
 

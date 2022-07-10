@@ -6,7 +6,7 @@ import 'package:base_flutter/theme/colors.dart';
 
 class LoadingScreen extends StatelessWidget {
   LoadingScreen({Key? key}) : super(key: key) {
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkLogin();
     });
   }
