@@ -1,3 +1,4 @@
+import 'package:base_flutter/base/widgets/base_smart_refresher.dart';
 import 'package:base_flutter/theme/colors.dart';
 import 'package:base_flutter/theme/text_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -169,9 +170,6 @@ class ListChatPage extends GetView<ChatController> {
                 borderSide: const BorderSide(color: Colors.transparent),
                 borderRadius: BorderRadius.circular(100)),
           ),
-          onChanged: (text) {
-            controller.search(text);
-          },
         ),
       ),
     );
@@ -221,31 +219,42 @@ class ListChatPage extends GetView<ChatController> {
               ),
             )
           : Expanded(
-              child: controller.data.isNotEmpty
+              child: controller.listItem.isNotEmpty
                   ? TabBarView(
                       controller: controller.tabController,
                       children: [
-                        ListView.builder(
-                          itemBuilder: (context, index) {
-                            return InkWell(
-                              onTap: () {},
-                              child: ChatItem(
-                                data: controller.data[index],
-                                onDelete: () {
-                                  controller.delete(index);
-                                },
-                              ),
-                            );
+                        BaseSmartRefresher(
+                          onReload: () {
+                            return controller.getListItems();
                           },
-                          itemCount: controller.data.length,
+                          onLoadMore: (){
+                            return controller.loadMoreItems();
+                          },
+                          isFinish: false,
+                          child: ListView.builder(
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () {},
+                                child: ChatItem(
+                                  data: controller.listItem[index],
+                                  onDelete: () {
+                                    controller.delete(index);
+                                  },
+                                ),
+                              );
+                            },
+                            itemCount: controller.listItem.length,
+                          ),
                         ),
                         const SizedBox(),
                         const SizedBox(),
                         const SizedBox(),
                       ],
                     )
-                  : const Center(
-                      child: const Text("Bạn chưa có hội thoại nào!"),
+                  : controller.hasText.value ? const Center(
+                    child: Text("Không có kết quả"),
+                  ) :const Center(
+                      child: Text("Bạn chưa có hội thoại nào!"),
                     ));
     });
   }

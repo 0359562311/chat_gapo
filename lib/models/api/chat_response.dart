@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class ChatResponse {
   final List<ChatData>? data;
   final int? total;
@@ -152,6 +154,18 @@ class ChatData {
         'can_send_message': canSendMessage,
         'settings': settings?.toJson()
       };
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+  
+    return other is ChatData && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode;
+  }
 }
 
 class Partner {

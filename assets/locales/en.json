@@ -50,6 +50,17 @@
     "go": "GO",
     "later": "Later"
   },
+
+  "chat": {
+    "search": "Search",
+    "no_results": "No result!",
+    "no_conservation": "No conservations!",
+    "product": "Product",
+    "tagged": "Tagged",
+    "not_seen": "Not seen",
+    "all": "All"
+  },
+
   "error": {
     "empty": "No data",
     "nodata": "No results"

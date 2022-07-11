@@ -5,27 +5,26 @@ import 'package:base_flutter/utils/string_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ChatController extends BaseController
+class ChatController extends BaseListController<ChatData>
     with GetSingleTickerProviderStateMixin {
   late final TabController tabController;
   late final TextEditingController textEditingController;
-  List<ChatData> _coreData = [];
-  RxList<ChatData> data = <ChatData>[].obs;
+  List<ChatData> _coreListItems = [];
   RxBool hasText = false.obs;
-
-  int _searchDelay = 0;
-
+  final RxString _text = "".obs;
   ChatController();
 
   @override
   void onInit() {
     super.onInit();
     tabController = TabController(length: 4, vsync: this);
-    textEditingController = TextEditingController()
+    textEditingController = TextEditingController(text: _text.string)
       ..addListener(() {
         hasText(textEditingController.text.isNotEmpty);
+        _text(textEditingController.text);
       });
-    fetchData();
+    debounce(_text, (_) => getListItems(), time: const Duration(milliseconds: 300));
+    getListItems();
   }
 
   @override
@@ -35,24 +34,22 @@ class ChatController extends BaseController
     super.dispose();
   }
 
-  ChatAPI _repository = ChatAPI();
+  final ChatAPI _repository = ChatAPI();
 
-  void fetchData() async {
-    isLoading(true);
+  @override
+  Future getListItems() async {
+    super.getListItems();
     await Future.delayed(const Duration(seconds: 1));
     _repository.fetchChatList().then((value) {
-      _coreData = value.data ?? [];
-      data.call(_coreData);
+      _coreListItems = value.data ?? [];
+      _filter();
       isLoading(false);
     });
   }
 
-  void search(String query) async {
-    _searchDelay++;
-    await Future.delayed(const Duration(milliseconds: 400));
-    _searchDelay--;
-    if (_searchDelay > 0) return;
-    data(_coreData.where((element) {
+  void _filter() async {
+    String query = textEditingController.text;
+    listItem(_coreListItems.where((element) {
       return element.name!.match(query) ||
           element.lastMessage!.body!.match(query);
     }).toList());
@@ -60,10 +57,11 @@ class ChatController extends BaseController
 
   void clearText() {
     textEditingController.text = "";
-    search("");
+    _filter();
   }
 
   void delete(int index) {
-    this.data.removeAt(index);
+    final removedChat = listItem.removeAt(index);
+    _coreListItems.remove(removedChat);
   }
 }

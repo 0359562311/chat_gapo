@@ -38,6 +38,16 @@
     "setPassword": "Set"
   },
 
+  "chat": {
+    "search": "Tìm kiếm",
+    "no_results": "Không có kết quả nào!",
+    "no_conservation": "Không có hội thoại nào!",
+    "product": "Sản phẩm",
+    "tagged": "Nhắc đến",
+    "not_seen": "Chưa xem",
+    "all": "Tất cả"
+  },
+
   "alert": {
     "title": "Alert",
     "ok": "OK",
