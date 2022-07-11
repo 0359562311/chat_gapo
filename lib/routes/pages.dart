@@ -4,7 +4,6 @@ import 'package:base_flutter/screens/loading/loading_screen.dart';
 import 'package:get/get.dart';
 import 'package:base_flutter/screens/login/login_screen.dart';
 import 'package:base_flutter/screens/login/account_login_screen.dart';
-import 'package:base_flutter/screens/verification_code/verification_code_screen.dart';
 import 'router_name.dart';
 
 class Pages {
@@ -25,6 +24,6 @@ class Pages {
         name: RouterName.changePassword,
         page: () => const ChangePasswordScreen(),
         binding: ChangePasswordScreenBinding()),
-    GetPage(name: RouterName.chat, page: () => ListChatPage())
+    GetPage(name: RouterName.chat, page: () => const ListChatPage(), binding: ChatListScreenBinding())
   ];
 }

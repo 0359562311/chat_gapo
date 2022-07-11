@@ -1,4 +1,3 @@
-import 'package:base_flutter/screens/loading/loading_screen.dart';
 import 'package:base_flutter/theme/colors.dart';
 import 'package:base_flutter/theme/text_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,10 +7,16 @@ import 'package:get/get.dart';
 import 'chat_controller.dart';
 import 'chat_item.dart';
 
-class ListChatPage extends GetView<ChatController> {
-  late final ChatController _chatController = Get.put(ChatController());
+class ChatListScreenBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut(() => ChatController());
+  }
+}
 
-  ListChatPage({Key? key}) : super(key: key);
+class ListChatPage extends GetView<ChatController> {
+
+  const ListChatPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +127,7 @@ class ListChatPage extends GetView<ChatController> {
         width: double.infinity,
         height: 36,
         child: TextField(
-          controller: _chatController.textEditingController,
+          controller: controller.textEditingController,
           style: textStyle(GPTypography.bodyLarge)
               ?.copyWith(color: GPColor.contentSecondary),
           decoration: InputDecoration(
@@ -140,10 +145,10 @@ class ListChatPage extends GetView<ChatController> {
                 const BoxConstraints(maxWidth: 36, minWidth: 36),
             suffixIcon: Obx(
               () => Visibility(
-                visible: _chatController.hasText.value,
+                visible: controller.hasText.value,
                 child: InkWell(
                   onTap: () {
-                    _chatController.clearText();
+                    controller.clearText();
                   },
                   child: const Icon(
                     CupertinoIcons.clear_circled,
@@ -165,7 +170,7 @@ class ListChatPage extends GetView<ChatController> {
                 borderRadius: BorderRadius.circular(100)),
           ),
           onChanged: (text) {
-            _chatController.search(text);
+            controller.search(text);
           },
         ),
       ),
@@ -174,7 +179,7 @@ class ListChatPage extends GetView<ChatController> {
 
   Widget _tabBar() {
     return TabBar(
-        controller: _chatController.tabController,
+        controller: controller.tabController,
         indicator: const UnderlineTabIndicator(
             borderSide:
                 BorderSide(color: GPColor.functionLinkPrimary, width: 2)),
@@ -209,30 +214,30 @@ class ListChatPage extends GetView<ChatController> {
 
   Widget _tabBarView() {
     return Obx(() {
-      return _chatController.isLoading.value
+      return controller.isLoading.value
           ? const Expanded(
               child: Center(
                 child: CircularProgressIndicator(),
               ),
             )
           : Expanded(
-              child: _chatController.data.isNotEmpty
+              child: controller.data.isNotEmpty
                   ? TabBarView(
-                      controller: _chatController.tabController,
+                      controller: controller.tabController,
                       children: [
                         ListView.builder(
                           itemBuilder: (context, index) {
                             return InkWell(
                               onTap: () {},
                               child: ChatItem(
-                                data: _chatController.data[index],
+                                data: controller.data[index],
                                 onDelete: () {
-                                  _chatController.delete(index);
+                                  controller.delete(index);
                                 },
                               ),
                             );
                           },
-                          itemCount: _chatController.data.length,
+                          itemCount: controller.data.length,
                         ),
                         const SizedBox(),
                         const SizedBox(),
