@@ -10,7 +10,12 @@ enum ChatType { individual, group }
 class ChatItem extends StatelessWidget {
   final ChatData data;
   final void Function() onDelete;
-  const ChatItem({Key? key, required this.data, required this.onDelete})
+  final void Function() onMore;
+  const ChatItem(
+      {Key? key,
+      required this.data,
+      required this.onDelete,
+      required this.onMore})
       : super(key: key);
 
   @override
@@ -22,7 +27,9 @@ class ChatItem extends StatelessWidget {
           SlidableAction(
             // An action can be bigger than the others.
             flex: 1,
-            onPressed: (_) {},
+            onPressed: (_) {
+              onMore();
+            },
             backgroundColor: GPColor.bgTertiary,
             foregroundColor: GPColor.contentPrimary,
             icon: Icons.more_vert,

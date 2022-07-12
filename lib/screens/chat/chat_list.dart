@@ -16,7 +16,6 @@ class ChatListScreenBinding extends Bindings {
 }
 
 class ListChatPage extends GetView<ChatController> {
-
   const ListChatPage({Key? key}) : super(key: key);
 
   @override
@@ -25,12 +24,33 @@ class ListChatPage extends GetView<ChatController> {
       length: 4,
       child: Scaffold(
         body: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              _appBar(),
-              _searchBox(),
-              _tabBar(),
-              _tabBarView(),
+              Column(
+                children: [
+                  _appBar(),
+                  _searchBox(),
+                  _tabBar(),
+                  _tabBarView(),
+                ],
+              ),
+              Positioned(
+                top: 25,
+                child: FadeTransition(
+                  opacity: Tween<double>(begin: 0, end: 1)
+                      .animate(controller.animationController),
+                  child: Row(
+                    children: [
+                      Text("ngusdhds"),
+                      TextButton(
+                          onPressed: () {
+                            controller.undoArchive();
+                          },
+                          child: Text("Hoan tac"))
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -227,7 +247,7 @@ class ListChatPage extends GetView<ChatController> {
                           onReload: () {
                             return controller.getListItems();
                           },
-                          onLoadMore: (){
+                          onLoadMore: () {
                             return controller.loadMoreItems();
                           },
                           isFinish: false,
@@ -240,6 +260,9 @@ class ListChatPage extends GetView<ChatController> {
                                   onDelete: () {
                                     controller.delete(index);
                                   },
+                                  onMore: () {
+                                    _showMore(context, index);
+                                  },
                                 ),
                               );
                             },
@@ -251,11 +274,113 @@ class ListChatPage extends GetView<ChatController> {
                         const SizedBox(),
                       ],
                     )
-                  : controller.hasText.value ? const Center(
-                    child: Text("Không có kết quả"),
-                  ) :const Center(
-                      child: Text("Bạn chưa có hội thoại nào!"),
-                    ));
+                  : controller.hasText.value
+                      ? const Center(
+                          child: Text("Không có kết quả"),
+                        )
+                      : const Center(
+                          child: Text("Bạn chưa có hội thoại nào!"),
+                        ));
     });
   }
+
+  void _showMore(BuildContext context, int index) {
+    final features = [
+      _BottomSheetOption(name: "Chặn tin nhắn", onPress: () {}),
+      _BottomSheetOption(name: "Ghim", onPress: () {}),
+      _BottomSheetOption(name: "Tắt thông báo", onPress: () {}),
+      _BottomSheetOption(name: "Bật trò chuyện bí mật", onPress: () {}),
+      _BottomSheetOption(
+          name: "Lưu trữ cuộc hội thoại",
+          onPress: () {
+            controller.archive(index);
+            Navigator.of(Get.overlayContext!).pop();
+          }),
+      _BottomSheetOption(
+          name: "Xoá cuộc hội thoại",
+          onPress: () {
+            controller.delete(index);
+            Navigator.of(Get.overlayContext!).pop();
+          }),
+    ];
+    showCupertinoModalPopup(
+        context: context,
+        builder: (context) {
+          return IntrinsicHeight(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  InkWell(
+                    onTap: () {},
+                    child: Container(
+                      decoration: const BoxDecoration(
+                          color: GPColor.bgPrimary,
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(13))),
+                      width: MediaQuery.of(context).size.width - 20,
+                      padding: const EdgeInsets.all(16.0),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        "Chọn chức năng",
+                        style: TextStyle(
+                            color: GPColor.contentSecondary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                  ...List.generate(
+                      features.length,
+                      (index) => Column(
+                            children: [
+                              const Divider(
+                                height: 1,
+                                color: GPColor.contentSecondary,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  features[index].onPress();
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: GPColor.bgPrimary,
+                                      borderRadius: BorderRadius.only(
+                                        bottomLeft: Radius.circular(
+                                            index == features.length - 1
+                                                ? 13
+                                                : 0),
+                                        bottomRight: Radius.circular(
+                                            index == features.length - 1
+                                                ? 13
+                                                : 0),
+                                      )),
+                                  width: MediaQuery.of(context).size.width - 20,
+                                  padding: const EdgeInsets.all(16.0),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    features[index].name,
+                                    style: TextStyle(
+                                        color: index == features.length - 1
+                                            ? GPColor.negativePrimary
+                                            : GPColor.functionLinkPrimary,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ))
+                ],
+              ),
+            ),
+          );
+        });
+  }
+}
+
+class _BottomSheetOption {
+  final String name;
+  final void Function() onPress;
+
+  _BottomSheetOption({required this.name, required this.onPress});
 }

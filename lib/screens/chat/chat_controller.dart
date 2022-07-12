@@ -6,24 +6,28 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ChatController extends BaseListController<ChatData>
-    with GetSingleTickerProviderStateMixin {
+    with GetTickerProviderStateMixin {
   late final TabController tabController;
   late final TextEditingController textEditingController;
+  late final AnimationController animationController;
   List<ChatData> _coreListItems = [];
-  RxBool hasText = false.obs;
+  final RxBool hasText = false.obs;
   final RxString _text = "".obs;
-  ChatController();
+  final Rx<ChatData?> archivedChat = Rx(null);
 
   @override
   void onInit() {
     super.onInit();
     tabController = TabController(length: 4, vsync: this);
+    animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
     textEditingController = TextEditingController(text: _text.string)
       ..addListener(() {
         hasText(textEditingController.text.isNotEmpty);
         _text(textEditingController.text);
       });
-    debounce(_text, (_) => getListItems(), time: const Duration(milliseconds: 300));
+    debounce(_text, (_) => getListItems(),
+        time: const Duration(milliseconds: 300));
     getListItems();
   }
 
@@ -31,6 +35,7 @@ class ChatController extends BaseListController<ChatData>
   void dispose() {
     tabController.dispose();
     textEditingController.dispose();
+    animationController.dispose();
     super.dispose();
   }
 
@@ -44,6 +49,8 @@ class ChatController extends BaseListController<ChatData>
       _coreListItems = value.data ?? [];
       _filter();
       isLoading(false);
+    }).catchError((e) {
+      handleError(e);
     });
   }
 
@@ -60,8 +67,24 @@ class ChatController extends BaseListController<ChatData>
     _filter();
   }
 
+  void archive(int index) async {
+    final removedChat = listItem.removeAt(index);
+    _coreListItems.remove(removedChat);
+    archivedChat(removedChat);
+    animationController.forward();
+    await Future.delayed(const Duration(seconds: 2));
+    animationController.reverse();
+  }
+
   void delete(int index) {
     final removedChat = listItem.removeAt(index);
     _coreListItems.remove(removedChat);
+  }
+
+  void undoArchive() {
+    if (archivedChat.value != null) {
+      _coreListItems.add(archivedChat.value!);
+      _filter();
+    }
   }
 }

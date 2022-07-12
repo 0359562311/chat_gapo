@@ -1,12 +1,10 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:base_flutter/base/networking/base/interceptors/authentication_interceptor.dart';
 import 'package:base_flutter/base/networking/base/interceptors/logger_interceptor.dart';
 import 'package:base_flutter/base/networking/base/interceptors/token_interceptor.dart';
 import 'package:base_flutter/base/networking/base/response_error.dart';
-import 'package:base_flutter/configs/constants.dart';
 
 import 'app_exception.dart';
 
