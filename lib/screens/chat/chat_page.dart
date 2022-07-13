@@ -1,4 +1,5 @@
 import 'package:base_flutter/base/widgets/base_smart_refresher.dart';
+import 'package:base_flutter/screens/chat/chat_list/chat_list_controller.dart';
 import 'package:base_flutter/screens/chat/chat_list/chat_list_page.dart';
 import 'package:base_flutter/theme/colors.dart';
 import 'package:base_flutter/theme/text_theme.dart';
@@ -15,6 +16,9 @@ class ChatListScreenBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut(() => ChatController());
+    ChatType.values.forEach((element) { 
+      Get.put(ChatListController(element), tag: element.name);
+    });
   }
 }
 
@@ -24,36 +28,15 @@ class ChatPage extends GetView<ChatController> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: ChatType.values.length,
       child: Scaffold(
         body: SafeArea(
-          child: Stack(
+          child: Column(
             children: [
-              Column(
-                children: [
-                  _appBar(),
-                  _searchBox(),
-                  _tabBar(),
-                  _tabBarView(),
-                ],
-              ),
-              Positioned(
-                top: 25,
-                child: FadeTransition(
-                  opacity: Tween<double>(begin: 0, end: 1)
-                      .animate(controller.animationController),
-                  child: Row(
-                    children: [
-                      Text("ngusdhds"),
-                      TextButton(
-                          onPressed: () {
-                            controller.undoArchive();
-                          },
-                          child: Text("Hoan tac"))
-                    ],
-                  ),
-                ),
-              ),
+              _appBar(),
+              _searchBox(),
+              _tabBar(),
+              _tabBarView(),
             ],
           ),
         ),
@@ -199,44 +182,31 @@ class ChatPage extends GetView<ChatController> {
   }
 
   Widget _tabBar() {
-    return TabBar(
-        controller: controller.tabController,
-        indicator: const UnderlineTabIndicator(
-            borderSide:
-                BorderSide(color: GPColor.functionLinkPrimary, width: 2)),
-        tabs: [
-          Tab(
-            child: Text(
-              "Tất cả",
-              style: textStyle(GPTypography.headingMedium)
-                  ?.copyWith(color: GPColor.functionLinkPrimary),
-            ),
-          ),
-          Tab(
-            child: Text("Nhắc đến",
-                overflow: TextOverflow.visible,
-                softWrap: false,
-                style: textStyle(GPTypography.headingMedium)),
-          ),
-          Tab(
-            child: Text("Chưa đọc",
-                overflow: TextOverflow.visible,
-                softWrap: false,
-                style: textStyle(GPTypography.headingMedium)),
-          ),
-          Tab(
-            child: Text("Product",
-                overflow: TextOverflow.visible,
-                softWrap: false,
-                style: textStyle(GPTypography.headingMedium)),
-          ),
-        ]);
+    final titles = [
+      "Tất cả",
+      "Nhắc đến",
+      "Chưa đọc",
+      "Sản phẩm"
+    ];
+    return Obx(
+      () => TabBar(
+          controller: controller.tabController,
+          indicator: const UnderlineTabIndicator(
+              borderSide:
+                  BorderSide(color: GPColor.functionLinkPrimary, width: 2)),
+          tabs: List.generate(titles.length, (index) => Tab(
+              child: Text(
+                titles[index],
+                style: index == controller.tabIndex.value ? textStyle(GPTypography.headingMedium)
+                    ?.copyWith(color: GPColor.functionLinkPrimary) : textStyle(GPTypography.headingMedium),
+              ),
+            ))),
+    );
   }
 
   Widget _tabBarView() {
     return Expanded(
-        child: controller.listItem.isNotEmpty
-            ? TabBarView(
+        child: TabBarView(
                 controller: controller.tabController,
                 children: const [
                   ChatListWidget(chatType: ChatType.all),
@@ -244,13 +214,6 @@ class ChatPage extends GetView<ChatController> {
                   ChatListWidget(chatType: ChatType.notSeen),
                   ChatListWidget(chatType: ChatType.product),
                 ],
-              )
-            : controller.hasText.value
-                ? const Center(
-                    child: Text("Không có kết quả"),
-                  )
-                : const Center(
-                    child: Text("Bạn chưa có hội thoại nào!"),
-                  ));
+              ));
   }
 }

@@ -1,5 +1,6 @@
 import 'package:base_flutter/base/widgets/base_smart_refresher.dart';
 import 'package:base_flutter/screens/chat/chat_item.dart';
+import 'package:base_flutter/screens/chat/chat_list/chat_list_controller.dart';
 import 'package:base_flutter/screens/chat/chat_page.dart';
 import 'package:base_flutter/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,6 +13,7 @@ class ChatListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<ChatListController>(tag: chatType.name);
     return Obx(() {
       return controller.isLoading.value
           ? const Expanded(
@@ -21,40 +23,32 @@ class ChatListWidget extends StatelessWidget {
             )
           : Expanded(
               child: controller.listItem.isNotEmpty
-                  ? TabBarView(
-                      controller: controller.tabController,
-                      children: [
-                        BaseSmartRefresher(
-                          onReload: () {
-                            return controller.getListItems();
-                          },
-                          onLoadMore: () {
-                            return controller.loadMoreItems();
-                          },
-                          isFinish: false,
-                          child: ListView.builder(
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                onTap: () {},
-                                child: ChatItem(
-                                  data: controller.listItem[index],
-                                  onDelete: () {
-                                    controller.delete(index);
-                                  },
-                                  onMore: () {
-                                    _showMore(context, index);
-                                  },
-                                ),
-                              );
+                  ? BaseSmartRefresher(
+                    onReload: () {
+                      return controller.reload();
+                    },
+                    onLoadMore: () {
+                      return controller.loadMoreItems();
+                    },
+                    isFinish: false,
+                    child: ListView.builder(
+                      itemBuilder: (context, index) {
+                        return InkWell(
+                          onTap: () {},
+                          child: ChatItem(
+                            data: controller.listItem[index],
+                            onDelete: () {
+                              controller.delete(index);
                             },
-                            itemCount: controller.listItem.length,
+                            onMore: () {
+                              _showMore(context, index, controller);
+                            },
                           ),
-                        ),
-                        const SizedBox(),
-                        const SizedBox(),
-                        const SizedBox(),
-                      ],
-                    )
+                        );
+                      },
+                      itemCount: controller.listItem.length,
+                    ),
+                  )
                   : controller.hasText.value
                       ? const Center(
                           child: Text("Không có kết quả"),
@@ -65,7 +59,7 @@ class ChatListWidget extends StatelessWidget {
     });
   }
 
-  void _showMore(BuildContext context, int index) {
+  void _showMore(BuildContext context, int index, ChatListController controller) {
     final features = [
       _BottomSheetOption(name: "Chặn tin nhắn", onPress: () {}),
       _BottomSheetOption(name: "Ghim", onPress: () {}),
