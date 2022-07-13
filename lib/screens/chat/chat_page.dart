@@ -1,4 +1,5 @@
 import 'package:base_flutter/base/widgets/base_smart_refresher.dart';
+import 'package:base_flutter/screens/chat/chat_list/chat_list_page.dart';
 import 'package:base_flutter/theme/colors.dart';
 import 'package:base_flutter/theme/text_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +9,8 @@ import 'package:get/get.dart';
 import 'chat_controller.dart';
 import 'chat_item.dart';
 
+enum ChatType { all, tagged, notSeen, product }
+
 class ChatListScreenBinding extends Bindings {
   @override
   void dependencies() {
@@ -15,8 +18,8 @@ class ChatListScreenBinding extends Bindings {
   }
 }
 
-class ListChatPage extends GetView<ChatController> {
-  const ListChatPage({Key? key}) : super(key: key);
+class ChatPage extends GetView<ChatController> {
+  const ChatPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -231,156 +234,23 @@ class ListChatPage extends GetView<ChatController> {
   }
 
   Widget _tabBarView() {
-    return Obx(() {
-      return controller.isLoading.value
-          ? const Expanded(
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            )
-          : Expanded(
-              child: controller.listItem.isNotEmpty
-                  ? TabBarView(
-                      controller: controller.tabController,
-                      children: [
-                        BaseSmartRefresher(
-                          onReload: () {
-                            return controller.getListItems();
-                          },
-                          onLoadMore: () {
-                            return controller.loadMoreItems();
-                          },
-                          isFinish: false,
-                          child: ListView.builder(
-                            itemBuilder: (context, index) {
-                              return InkWell(
-                                onTap: () {},
-                                child: ChatItem(
-                                  data: controller.listItem[index],
-                                  onDelete: () {
-                                    controller.delete(index);
-                                  },
-                                  onMore: () {
-                                    _showMore(context, index);
-                                  },
-                                ),
-                              );
-                            },
-                            itemCount: controller.listItem.length,
-                          ),
-                        ),
-                        const SizedBox(),
-                        const SizedBox(),
-                        const SizedBox(),
-                      ],
-                    )
-                  : controller.hasText.value
-                      ? const Center(
-                          child: Text("Không có kết quả"),
-                        )
-                      : const Center(
-                          child: Text("Bạn chưa có hội thoại nào!"),
-                        ));
-    });
-  }
-
-  void _showMore(BuildContext context, int index) {
-    final features = [
-      _BottomSheetOption(name: "Chặn tin nhắn", onPress: () {}),
-      _BottomSheetOption(name: "Ghim", onPress: () {}),
-      _BottomSheetOption(name: "Tắt thông báo", onPress: () {}),
-      _BottomSheetOption(name: "Bật trò chuyện bí mật", onPress: () {}),
-      _BottomSheetOption(
-          name: "Lưu trữ cuộc hội thoại",
-          onPress: () {
-            controller.archive(index);
-            Navigator.of(Get.overlayContext!).pop();
-          }),
-      _BottomSheetOption(
-          name: "Xoá cuộc hội thoại",
-          onPress: () {
-            controller.delete(index);
-            Navigator.of(Get.overlayContext!).pop();
-          }),
-    ];
-    showCupertinoModalPopup(
-        context: context,
-        builder: (context) {
-          return IntrinsicHeight(
-            child: SafeArea(
-              child: Column(
-                children: [
-                  InkWell(
-                    onTap: () {},
-                    child: Container(
-                      decoration: const BoxDecoration(
-                          color: GPColor.bgPrimary,
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(13))),
-                      width: MediaQuery.of(context).size.width - 20,
-                      padding: const EdgeInsets.all(16.0),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "Chọn chức năng",
-                        style: TextStyle(
-                            color: GPColor.contentSecondary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ),
-                  ...List.generate(
-                      features.length,
-                      (index) => Column(
-                            children: [
-                              const Divider(
-                                height: 1,
-                                color: GPColor.contentSecondary,
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  features[index].onPress();
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: GPColor.bgPrimary,
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(
-                                            index == features.length - 1
-                                                ? 13
-                                                : 0),
-                                        bottomRight: Radius.circular(
-                                            index == features.length - 1
-                                                ? 13
-                                                : 0),
-                                      )),
-                                  width: MediaQuery.of(context).size.width - 20,
-                                  padding: const EdgeInsets.all(16.0),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    features[index].name,
-                                    style: TextStyle(
-                                        color: index == features.length - 1
-                                            ? GPColor.negativePrimary
-                                            : GPColor.functionLinkPrimary,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ))
+    return Expanded(
+        child: controller.listItem.isNotEmpty
+            ? TabBarView(
+                controller: controller.tabController,
+                children: const [
+                  ChatListWidget(chatType: ChatType.all),
+                  ChatListWidget(chatType: ChatType.tagged),
+                  ChatListWidget(chatType: ChatType.notSeen),
+                  ChatListWidget(chatType: ChatType.product),
                 ],
-              ),
-            ),
-          );
-        });
+              )
+            : controller.hasText.value
+                ? const Center(
+                    child: Text("Không có kết quả"),
+                  )
+                : const Center(
+                    child: Text("Bạn chưa có hội thoại nào!"),
+                  ));
   }
-}
-
-class _BottomSheetOption {
-  final String name;
-  final void Function() onPress;
-
-  _BottomSheetOption({required this.name, required this.onPress});
 }
