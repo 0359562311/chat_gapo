@@ -36,12 +36,13 @@ class ChatListController extends BaseListController<ChatData>
   final ChatAPI _repository = ChatAPI();
 
   @override
-  Future getListItems({String query = ""}) async {
+  Future getListItems({String query = "", bool isReload = false}) async {
+    print(query);
     super.getListItems();
-    if(query == _lastSearchQuery) return;
+    if(query == _lastSearchQuery && !isReload) return;
     _lastSearchQuery = query;
     await Future.delayed(const Duration(seconds: 1));
-    _repository.fetchChatList(_chatType, query).then((value) {
+    _repository.fetchChatList(_chatType, page, query).then((value) {
       listItem.value = value.data ?? [];
       
     }).catchError((e) {
@@ -50,14 +51,8 @@ class ChatListController extends BaseListController<ChatData>
   }
 
   @override
-  Future<bool> loadMoreItems() {
-    // TODO: implement loadMoreItems
-    return super.loadMoreItems();
-  }
-
-  @override
   Future reload() {
-    // TODO: implement reload
+    getListItems(query: _lastSearchQuery ?? "", isReload: true);
     return super.reload();
   }
 

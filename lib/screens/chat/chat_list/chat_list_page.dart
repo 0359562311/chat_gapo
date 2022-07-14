@@ -14,49 +14,48 @@ class ChatListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ChatListController>(tag: chatType.name);
-    return Obx(() {
-      return controller.isLoading.value
-          ? const Expanded(
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
+    return Expanded(
+      child: Obx(() {
+        return controller.isLoading.value && controller.listItem.isEmpty
+            ? Center(
+              child: CircularProgressIndicator(),
             )
-          : Expanded(
-              child: controller.listItem.isNotEmpty
-                  ? BaseSmartRefresher(
-                    onReload: () {
-                      return controller.reload();
+            : controller.listItem.isNotEmpty
+                ? BaseSmartRefresher(
+                  onReload: () {
+                    return controller.reload();
+                  },
+                  onLoadMore: () {
+                    return controller.loadMoreItems();
+                  },
+                  isFinish: !controller.canLoadMore,
+                  child: ListView.builder(
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {},
+                        child: ChatItem(
+                          data: controller.listItem[index],
+                          onDelete: () {
+                            controller.delete(index);
+                          },
+                          onMore: () {
+                            _showMore(context, index, controller);
+                          },
+                        ),
+                      );
                     },
-                    onLoadMore: () {
-                      return controller.loadMoreItems();
-                    },
-                    isFinish: false,
-                    child: ListView.builder(
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {},
-                          child: ChatItem(
-                            data: controller.listItem[index],
-                            onDelete: () {
-                              controller.delete(index);
-                            },
-                            onMore: () {
-                              _showMore(context, index, controller);
-                            },
-                          ),
-                        );
-                      },
-                      itemCount: controller.listItem.length,
-                    ),
-                  )
-                  : controller.hasText.value
-                      ? const Center(
-                          child: Text("Không có kết quả"),
-                        )
-                      : const Center(
-                          child: Text("Bạn chưa có hội thoại nào!"),
-                        ));
-    });
+                    itemCount: controller.listItem.length,
+                  ),
+                )
+                : controller.hasText.value
+                    ? const Center(
+                        child: Text("Không có kết quả"),
+                      )
+                    : const Center(
+                        child: Text("Bạn chưa có hội thoại nào!"),
+                      );
+      }),
+    );
   }
 
   void _showMore(BuildContext context, int index, ChatListController controller) {

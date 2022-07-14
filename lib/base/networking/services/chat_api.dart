@@ -10,7 +10,8 @@ import 'package:flutter/services.dart';
 class ChatAPI {
   final ApiService _service = ApiService(Constants.apiDomain);
 
-  Future<ChatResponse> fetchChatList(ChatType chatType, String query) {
+  Future<ChatResponse> fetchChatList(ChatType chatType, int page, String query) {
+    if(page > 0) return Future.value(ChatResponse(data: []));
     return rootBundle
         .loadString("assets/json/chat_response.json")
         .then((value) => (ChatResponse.fromJson(jsonDecode(value))))

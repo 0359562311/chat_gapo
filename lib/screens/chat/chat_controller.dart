@@ -25,12 +25,12 @@ class ChatController extends BaseController
     });
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
-    textEditingController = TextEditingController(text: _text.string)
+    textEditingController = TextEditingController()
       ..addListener(() {
         hasText(textEditingController.text.isNotEmpty);
-        _text(textEditingController.text);
+        _text.value = textEditingController.text;
       });
-    debounce(_text, (_) => Get.find<ChatListController>(tag: ChatType.values[tabController.index].name).getListItems(),
+    debounce<String>(_text, (query) => Get.find<ChatListController>(tag: ChatType.values[tabController.index].name).getListItems(query: query),
         time: const Duration(milliseconds: 300));
     Get.find<ChatListController>(tag: ChatType.all.name).getListItems();
   }

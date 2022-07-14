@@ -195,10 +195,14 @@ class ChatPage extends GetView<ChatController> {
               borderSide:
                   BorderSide(color: GPColor.functionLinkPrimary, width: 2)),
           tabs: List.generate(titles.length, (index) => Tab(
-              child: Text(
-                titles[index],
-                style: index == controller.tabIndex.value ? textStyle(GPTypography.headingMedium)
-                    ?.copyWith(color: GPColor.functionLinkPrimary) : textStyle(GPTypography.headingMedium),
+            height: 54,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  titles[index],
+                  style: index == controller.tabIndex.value ? textStyle(GPTypography.headingMedium)
+                      ?.copyWith(color: GPColor.functionLinkPrimary) : textStyle(GPTypography.headingMedium),
+                ),
               ),
             ))),
     );
@@ -208,6 +212,7 @@ class ChatPage extends GetView<ChatController> {
     return Expanded(
         child: TabBarView(
                 controller: controller.tabController,
+                physics: const NeverScrollableScrollPhysics(),
                 children: const [
                   ChatListWidget(chatType: ChatType.all),
                   ChatListWidget(chatType: ChatType.tagged),
