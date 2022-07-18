@@ -5,8 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-enum ChatType { individual, group }
-
 class ChatItem extends StatelessWidget {
   final ChatData data;
   final void Function() onDelete;

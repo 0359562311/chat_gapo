@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 class ChatResponse {
-  final List<ChatData>? data;
+  List<ChatData>? data;
   final int? total;
 
   ChatResponse({
