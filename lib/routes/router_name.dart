@@ -1,4 +1,5 @@
 class RouterName {
+  static const String startingPoint = "/richInput";
   static const String loading = "/loading";
   static const String login = "/login";
   static const String accountLogin = "/accountLogin";
@@ -7,4 +8,5 @@ class RouterName {
   static const String tabbar = "/tabbar";
   static const String changePassword = "/changePassword";
   static const String chat = "/chat";
+  static const String richInput = "/richInput";
 }
