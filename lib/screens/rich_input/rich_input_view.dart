@@ -22,13 +22,14 @@ class RichInputView extends GetView<RichInputController> {
                 child: Container(
                   child: Column(
                     children: controller.suggestions.value
-                        .map((e) => Text(e))
+                        .map((e) => Text(e.displayName ?? "haha"))
                         .toList(),
                   ),
                 ),
                 visible: controller.suggestions.isNotEmpty,
               )),
           TextField(
+            controller: controller.textEditingController,
             onChanged: (text) {
               controller.onChange(text);
             },
