@@ -22,7 +22,11 @@ class RichInputView extends GetView<RichInputController> {
                 child: Container(
                   child: Column(
                     children: controller.suggestions.value
-                        .map((e) => Text(e.displayName ?? "haha"))
+                        .map((e) => InkWell(
+                            onTap: () {
+                              controller.textEditingController.setTag(e);
+                            },
+                            child: Text(e.displayName ?? "haha")))
                         .toList(),
                   ),
                 ),
@@ -30,9 +34,6 @@ class RichInputView extends GetView<RichInputController> {
               )),
           TextField(
             controller: controller.textEditingController,
-            onChanged: (text) {
-              controller.onChange(text);
-            },
           )
         ],
       ),
