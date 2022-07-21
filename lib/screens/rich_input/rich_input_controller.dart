@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:base_flutter/base/networking/services/assignee_api.dart';
 import 'package:base_flutter/models/api/assignee_response.dart';
 import 'package:base_flutter/theme/colors.dart';
@@ -9,7 +11,7 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/state_manager.dart';
 
 RegExp tagRegex = RegExp(
-  r"@{1}[a-zA-Z]+\b",
+  r"^@{1}[a-zA-Z]+\b",
   caseSensitive: false,
   multiLine: false,
 );
@@ -32,25 +34,15 @@ class RichInputController extends GetxController {
 
   void onInit() {
     super.onInit();
-    textEditingController = RichTextEditingController()
-      ..addListener(() {
-        print(textEditingController.selection.base.offset);
-        onChange();
-      });
+    textEditingController = RichTextEditingController(onChange);
   }
 
   RxList<Assignee> suggestions = <Assignee>[].obs;
 
-  void onChange() async {
-    String tagged = textEditingController.text
-        .substring(0, textEditingController.selection.baseOffset)
-        .split(" ")
-        .last;
-    if (tagRegex.hasMatch(tagged)) {
-      suggestions.value = await _api
-          .fetchAssigneeList(tagged.substring(1))
-          .then((value) => value.data ?? []);
-      print(suggestions.value);
+  void onChange(String tag) async {
+    if (tag.isNotEmpty) {
+      suggestions.value =
+          await _api.fetchAssigneeList(tag).then((value) => value.data ?? []);
     } else {
       suggestions.value = [];
     }
@@ -60,22 +52,59 @@ class RichInputController extends GetxController {
 class RichTextEditingController extends TextEditingController {
   final _specialInput = <_SpecialInput>[];
   String _oldText = "";
+  final void Function(String) onMatchTag;
+
+  RichTextEditingController(this.onMatchTag);
+
+  @override
+  set text(String newText) {
+    value = value.copyWith(
+      text: newText,
+      selection:
+          TextSelection.fromPosition(TextPosition(offset: newText.length)),
+      composing: TextRange.empty,
+    );
+  }
 
   void setTag(Assignee assignee) {
-    int start = selection.baseOffset - 1;
-    while (text.characters.characterAt(start) != Characters('@')) {
+    if (selection.baseOffset < 0) return;
+    int start = max(0, selection.baseOffset - 1);
+    while (start > 0 &&
+        text.characters.characterAt(start - 1) != Characters(' ')) {
       start--;
     }
-    text =
-        text.replaceRange(start, selection.baseOffset, assignee.displayName!);
-    _oldText = text;
-    selection = TextSelection.fromPosition(
-        TextPosition(offset: assignee.displayName!.length + start));
-    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-    //   selection = TextSelection.fromPosition(
-    //       TextPosition(offset: assignee.displayName!.length + start));
-    // });
-    _specialInput.add(_TagInput(assignee, start, selection.baseOffset));
+    if (tagRegex.hasMatch(text.substring(start, selection.baseOffset))) {
+      text = text.replaceRange(
+          start, selection.baseOffset, assignee.displayName! + " ");
+      _oldText = text;
+      // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      //   selection = TextSelection.fromPosition(
+      //       TextPosition(offset: assignee.displayName!.length + start));
+      // });
+      _specialInput.add(_TagInput(assignee, start, selection.baseOffset - 1));
+    }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      onMatchTag("");
+    });
+  }
+
+  void _checkMatchTag() {
+    if (selection.baseOffset < 0) return;
+    int start = max(0, selection.baseOffset - 1);
+    while (start > 0 &&
+        text.characters.characterAt(start - 1) != Characters(' ')) {
+      start--;
+    }
+    if (tagRegex.hasMatch(text.substring(start, selection.baseOffset))) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        onMatchTag(text.substring(start + 1, selection.baseOffset));
+      });
+      onMatchTag(text.substring(start + 1, selection.baseOffset));
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        onMatchTag("");
+      });
+    }
   }
 
   @override
@@ -83,6 +112,7 @@ class RichTextEditingController extends TextEditingController {
       {required BuildContext context,
       TextStyle? style,
       required bool withComposing}) {
+    _checkMatchTag();
     int current = selection.baseOffset;
     if (_oldText.length == text.length) {
       // cursor position changed
@@ -113,16 +143,28 @@ class RichTextEditingController extends TextEditingController {
       });
       if (temp != null && temp is _TagInput) {
         _specialInput.remove(temp);
-      }
-      _specialInput.forEach((element) {
-        if (element.start >= current) {
-          element.start--;
-          element.end--;
+        if (temp!.end - 1 == current) {
+          text = text.replaceRange(temp!.start, current, "");
+          _specialInput.forEach((element) {
+            if (element.start >= current) {
+              element.start -= temp!.end - temp!.start + 1;
+              element.end -= temp!.end - temp!.start;
+            }
+          });
+        } else {
+          _specialInput.forEach((element) {
+            if (element.start >= current) {
+              element.start--;
+              element.end--;
+            }
+          });
         }
-      });
+      }
     }
 
-    _oldText = text;
+    if (_oldText != text) {
+      _oldText = text;
+    }
 
     List<TextSpan> children = [];
     int start = 0;
@@ -131,10 +173,10 @@ class RichTextEditingController extends TextEditingController {
         children.add(TextSpan(
             text: text.substring(start, input.start),
             style: TextStyle(color: Colors.black)));
-        children.add(TextSpan(
-            text: text.substring(input.start, input.end),
-            style: TextStyle(color: GPColor.functionLinkPrimary)));
       }
+      children.add(TextSpan(
+          text: text.substring(input.start, input.end),
+          style: TextStyle(color: GPColor.functionLinkPrimary)));
       start = input.end;
     });
     if (start < text.length) {

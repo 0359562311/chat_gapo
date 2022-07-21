@@ -12,9 +12,9 @@ class AssigneeAPI {
         .then((value) => (AssigneeResponse.fromJson(jsonDecode(value))))
         .then((value) {
       value.data = value.data
-          // ?.where((element) => (element.displayName!).match(query))
-          // .toList()
-          ?.sublist(0, min(5, value.data?.length ?? 0));
+          ?.where((element) => (element.displayName!).match(query))
+          .toList();
+      value.data = value.data?.sublist(0, min(5, value.data?.length ?? 0));
       return value;
     });
   }
