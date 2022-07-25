@@ -24,7 +24,7 @@ class RichInputView extends GetView<RichInputController> {
                     children: controller.suggestions.value
                         .map((e) => InkWell(
                             onTap: () {
-                              controller.textEditingController.setTag(e);
+                              controller.setTag(e);
                             },
                             child: Text(e.displayName ?? "haha")))
                         .toList(),
@@ -32,8 +32,11 @@ class RichInputView extends GetView<RichInputController> {
                 ),
                 visible: controller.suggestions.isNotEmpty,
               )),
-          TextField(
-            controller: controller.textEditingController,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: TextField(
+              controller: controller.textEditingController,
+            ),
           )
         ],
       ),
