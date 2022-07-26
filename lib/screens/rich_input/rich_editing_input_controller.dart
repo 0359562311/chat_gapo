@@ -23,8 +23,11 @@ RegExp _emailRegex = RegExp(
 );
 
 class RichTextEditingController extends TextEditingController {
-  final _specialInput = <_SpecialInput>[];
+  var _specialInput = <_SpecialInput>[];
   String _oldText = "";
+  int _oldBaseOffset = 0;
+  int _oldExtentOffset = 0;
+
   final void Function(String) onMatchTag;
 
   RichTextEditingController(this.onMatchTag);
@@ -77,20 +80,40 @@ class RichTextEditingController extends TextEditingController {
     });
   }
 
-  @override
-  TextSpan buildTextSpan(
-      {required BuildContext context,
-      TextStyle? style,
-      required bool withComposing}) {
-    _checkMatchTag();
+  void _textChangeInRange(int start, int end, int offset) {
+    List<_SpecialInput> temp = <_SpecialInput>[]..addAll(_specialInput);
+    _specialInput.forEach((element) {
+      if (element.start >= start || element.end <= end) {
+        temp.remove(element);
+      }
+    });
+    _specialInput = temp;
+    _specialInput.forEach((element) {
+      if (element.start > start) {
+        element.start += offset;
+        element.end += offset;
+      }
+    });
+  }
+
+  void _detectChangeOnTextLengthNotChanged() {
+    if (_oldBaseOffset != _oldExtentOffset &&
+        selection.extentOffset == _oldExtentOffset) {
+      if (text.substring(_oldBaseOffset, _oldExtentOffset) !=
+          text.substring(_oldBaseOffset, _oldExtentOffset)) {
+        _textChangeInRange(_oldBaseOffset, _oldExtentOffset, 0);
+      }
+    }
+  }
+
+  void _onModifyNonSelection() {
     int current = selection.baseOffset;
-    if (_oldText.length == text.length) {
-      // cursor position changed
-    } else if (_oldText.length < text.length) {
-      // add a character
+    int offset = selection.baseOffset - _oldBaseOffset;
+    if (_oldText.length < text.length) {
+      // add characters
       _SpecialInput? temp;
       _specialInput.forEach((element) {
-        if (element.start < current - 1 && element.end >= current) {
+        if (element.start < current - offset && element.end >= current) {
           temp = element;
         }
       });
@@ -98,13 +121,13 @@ class RichTextEditingController extends TextEditingController {
         _specialInput.remove(temp);
       }
       _specialInput.forEach((element) {
-        if (element.start + 1 >= current) {
-          element.start++;
-          element.end++;
+        if (element.start + offset >= current) {
+          element.start += offset;
+          element.end += offset;
         }
       });
     } else {
-      // delete a character
+      // delete characters
       _SpecialInput? temp;
       _specialInput.forEach((element) {
         if (element.start <= current && element.end > current) {
@@ -113,7 +136,7 @@ class RichTextEditingController extends TextEditingController {
       });
       if (temp != null && temp is _TagInput) {
         _specialInput.remove(temp);
-        if (temp!.end - 1 == current) {
+        if (temp!.end >= current && _oldBaseOffset > temp!.end) {
           text = text.replaceRange(temp!.start, current, "");
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             selection = TextSelection.fromPosition(
@@ -121,25 +144,49 @@ class RichTextEditingController extends TextEditingController {
           });
           _specialInput.forEach((element) {
             if (element.start >= current) {
-              element.start -= temp!.end - temp!.start + 1;
-              element.end -= temp!.end - temp!.start;
+              element.start -= _oldBaseOffset - temp!.start;
+              element.end -= _oldBaseOffset - temp!.start;
             }
           });
         } else {
           _specialInput.forEach((element) {
             if (element.start >= current) {
-              element.start--;
-              element.end--;
+              element.start += offset;
+              element.end += offset;
             }
           });
         }
       } else {
         _specialInput.forEach((element) {
           if (element.start >= current) {
-            element.start--;
-            element.end--;
+            element.start += offset;
+            element.end += offset;
           }
         });
+      }
+    }
+  }
+
+  void _onModifySelection() {
+    _textChangeInRange(_oldBaseOffset, _oldExtentOffset,
+        selection.baseOffset - _oldExtentOffset);
+  }
+
+  @override
+  TextSpan buildTextSpan(
+      {required BuildContext context,
+      TextStyle? style,
+      required bool withComposing}) {
+    _checkMatchTag();
+    int current = selection.baseOffset;
+    if (_oldText.length == text.length) {
+      _detectChangeOnTextLengthNotChanged();
+    } else {
+      if (_oldBaseOffset == _oldExtentOffset) {
+        // change more than one
+        _onModifyNonSelection();
+      } else {
+        _onModifySelection();
       }
     }
 
@@ -147,23 +194,26 @@ class RichTextEditingController extends TextEditingController {
       _oldText = text;
     }
 
+    _oldBaseOffset = selection.baseOffset;
+    _oldExtentOffset = selection.extentOffset;
+
     List<TextSpan> children = [];
     int start = 0;
     _specialInput.forEach((input) {
       if (start < input.start) {
         children.add(TextSpan(
             text: text.substring(start, input.start),
-            style: TextStyle(color: Colors.black)));
+            style: const TextStyle(color: Colors.black)));
       }
       children.add(TextSpan(
           text: text.substring(input.start, input.end),
-          style: TextStyle(color: GPColor.functionLinkPrimary)));
+          style: const TextStyle(color: GPColor.functionLinkPrimary)));
       start = input.end;
     });
     if (start < text.length) {
       children.add(TextSpan(
           text: text.substring(start, text.length),
-          style: TextStyle(color: Colors.black)));
+          style: const TextStyle(color: Colors.black)));
     }
     return TextSpan(children: children);
   }
