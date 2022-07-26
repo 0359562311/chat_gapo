@@ -18,9 +18,10 @@ class RichInputView extends GetView<RichInputController> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Obx(() => Visibility(
-                child: Container(
+          Expanded(
+            child: Obx(() => Visibility(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: controller.suggestions.value
                         .map((e) => InkWell(
                             onTap: () {
@@ -29,11 +30,11 @@ class RichInputView extends GetView<RichInputController> {
                             child: Text(e.displayName ?? "haha")))
                         .toList(),
                   ),
-                ),
-                visible: controller.suggestions.isNotEmpty,
-              )),
+                  visible: controller.suggestions.isNotEmpty,
+                )),
+          ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.all(16.0),
             child: TextField(
               controller: controller.textEditingController,
             ),

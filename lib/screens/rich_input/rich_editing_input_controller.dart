@@ -81,9 +81,10 @@ class RichTextEditingController extends TextEditingController {
   }
 
   void _textChangeInRange(int start, int end, int offset) {
-    List<_SpecialInput> temp = <_SpecialInput>[]..addAll(_specialInput);
+    List<_SpecialInput> temp = <_SpecialInput>[..._specialInput];
     _specialInput.forEach((element) {
-      if (element.start >= start || element.end <= end) {
+      if ((element.start >= start && element.start < end) ||
+          (element.end > start && element.end < end)) {
         temp.remove(element);
       }
     });
@@ -106,7 +107,7 @@ class RichTextEditingController extends TextEditingController {
     }
   }
 
-  void _onModifyNonSelection() {
+  void _modifyNonSelection() {
     int current = selection.baseOffset;
     int offset = selection.baseOffset - _oldBaseOffset;
     if (_oldText.length < text.length) {
@@ -136,7 +137,7 @@ class RichTextEditingController extends TextEditingController {
       });
       if (temp != null && temp is _TagInput) {
         _specialInput.remove(temp);
-        if (temp!.end >= current && _oldBaseOffset > temp!.end) {
+        if (temp!.end >= current && _oldBaseOffset >= temp!.end) {
           text = text.replaceRange(temp!.start, current, "");
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             selection = TextSelection.fromPosition(
@@ -167,7 +168,7 @@ class RichTextEditingController extends TextEditingController {
     }
   }
 
-  void _onModifySelection() {
+  void _modifySelection() {
     _textChangeInRange(_oldBaseOffset, _oldExtentOffset,
         selection.baseOffset - _oldExtentOffset);
   }
@@ -178,15 +179,14 @@ class RichTextEditingController extends TextEditingController {
       TextStyle? style,
       required bool withComposing}) {
     _checkMatchTag();
-    int current = selection.baseOffset;
     if (_oldText.length == text.length) {
       _detectChangeOnTextLengthNotChanged();
     } else {
       if (_oldBaseOffset == _oldExtentOffset) {
         // change more than one
-        _onModifyNonSelection();
+        _modifyNonSelection();
       } else {
-        _onModifySelection();
+        _modifySelection();
       }
     }
 
