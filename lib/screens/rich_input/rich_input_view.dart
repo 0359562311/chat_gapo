@@ -1,4 +1,5 @@
 import 'package:base_flutter/screens/rich_input/rich_input_controller.dart';
+import 'package:base_flutter/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -33,10 +34,14 @@ class RichInputView extends GetView<RichInputController> {
                   visible: controller.suggestions.isNotEmpty,
                 )),
           ),
-          Padding(
+          Container(
+            constraints: const BoxConstraints(maxHeight: 200),
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               controller: controller.textEditingController,
+              maxLength: 5000,
+              textInputAction: TextInputAction.newline,
+              maxLines: null,
             ),
           )
         ],

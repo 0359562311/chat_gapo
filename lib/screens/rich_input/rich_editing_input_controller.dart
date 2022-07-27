@@ -50,16 +50,24 @@ class RichTextEditingController extends TextEditingController {
       start--;
     }
     if (_tagRegex.hasMatch(text.substring(start, selection.baseOffset))) {
-      text = text.replaceRange(
-          start, selection.baseOffset, assignee.displayName! + " ");
-      _oldText = text;
       _specialInput.add(
           _TagInput(assignee, start, assignee.displayName!.length + start));
       _specialInput.sort((a, b) => a.start - b.start);
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        selection = TextSelection.fromPosition(
-            TextPosition(offset: assignee.displayName!.length + start + 1));
+      _specialInput.forEach((element) {
+        if (element.start >= selection.baseOffset) {
+          element.start +=
+              assignee.displayName!.length + start - selection.baseOffset;
+          element.end +=
+              assignee.displayName!.length + start - selection.baseOffset + 1;
+        }
       });
+      value = value.copyWith(
+          text: text.replaceRange(
+              start, selection.baseOffset, assignee.displayName! + " "),
+          selection: TextSelection.fromPosition(
+              TextPosition(offset: assignee.displayName!.length + start + 1)),
+          composing: TextRange.empty);
+      _oldText = text;
     }
     onMatchTag("");
   }
@@ -138,8 +146,8 @@ class RichTextEditingController extends TextEditingController {
       if (temp != null && temp is _TagInput) {
         _specialInput.remove(temp);
         if (temp!.end >= current && _oldBaseOffset >= temp!.end) {
-          text = text.replaceRange(temp!.start, current, "");
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            text = text.replaceRange(temp!.start, current, "");
             selection = TextSelection.fromPosition(
                 TextPosition(offset: current - (temp!.end - temp!.start) + 1));
           });
