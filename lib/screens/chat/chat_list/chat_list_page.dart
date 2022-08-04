@@ -14,14 +14,13 @@ class ChatListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ChatListController>(tag: chatType.name);
-    return Expanded(
-      child: Obx(() {
-        return controller.isLoading.value && controller.listItem.isEmpty
-            ? Center(
+    return Obx(() {
+      return controller.isLoading.value && controller.listItem.isEmpty
+          ? const Center(
               child: CircularProgressIndicator(),
             )
-            : controller.listItem.isNotEmpty
-                ? BaseSmartRefresher(
+          : controller.listItem.isNotEmpty
+              ? BaseSmartRefresher(
                   onReload: () {
                     return controller.reload();
                   },
@@ -47,18 +46,18 @@ class ChatListWidget extends StatelessWidget {
                     itemCount: controller.listItem.length,
                   ),
                 )
-                : controller.hasText.value
-                    ? const Center(
-                        child: Text("Không có kết quả"),
-                      )
-                    : const Center(
-                        child: Text("Bạn chưa có hội thoại nào!"),
-                      );
-      }),
-    );
+              : controller.hasText.value
+                  ? const Center(
+                      child: Text("Không có kết quả"),
+                    )
+                  : const Center(
+                      child: Text("Bạn chưa có hội thoại nào!"),
+                    );
+    });
   }
 
-  void _showMore(BuildContext context, int index, ChatListController controller) {
+  void _showMore(
+      BuildContext context, int index, ChatListController controller) {
     final features = [
       _BottomSheetOption(name: "Chặn tin nhắn", onPress: () {}),
       _BottomSheetOption(name: "Ghim", onPress: () {}),

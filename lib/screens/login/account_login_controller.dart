@@ -69,7 +69,8 @@ class AccountLoginController extends BaseController {
       if (response.accessToken.isNotEmpty) {
         await TokenManager.saveAccessToken(response.accessToken);
         // Get.off(RouterName.jumping);
-        _getUserInfo();
+        // _getUserInfo();
+        Get.toNamed(RouterName.chat);
       }
     } catch (error) {
       logDebug("login error $error");

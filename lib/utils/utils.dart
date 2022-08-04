@@ -39,7 +39,7 @@ class Utils {
   }
 
   static String currentLanguageCode() {
-    String languageCode = LocalService.get(_languageKey, false) ?? "en";
+    String languageCode = LocalService.get(_languageKey, false) ?? "vi";
     return languageCode;
   }
 

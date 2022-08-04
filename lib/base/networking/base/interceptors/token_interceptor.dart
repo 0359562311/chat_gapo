@@ -66,7 +66,8 @@ class TokenInterceptor extends Interceptor {
     if (renewCount >= 5) return; // To avoid calling too many renew token
     final body = {"refresh_token": ""};
     _tokenDio
-        .post("${Constants.apiDomain}${Constants.renewTokenPath}", data: body)
+        .post("${Constants.chatApiDomain}${Constants.renewTokenPath}",
+            data: body)
         .then((d) {
       // ApiResponse<RenewTokenInfo> result = ApiResponse.fromJson(d.data);
       // options.headers['Authorization'] =

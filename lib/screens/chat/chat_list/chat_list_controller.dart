@@ -41,7 +41,10 @@ class ChatListController extends BaseListController<ChatData>
     if (query == _lastSearchQuery && !isReload) return;
     _lastSearchQuery = query;
     await Future.delayed(const Duration(seconds: 1));
-    _repository.fetchChatList(_chatType, page, query).then((value) {
+    _repository
+        .fetchChatList(_chatType,
+            (isReload || listItem.isEmpty) ? null : listItem.last.id, query)
+        .then((value) {
       listItem.value = value.data ?? [];
     }).catchError((e) {
       handleError(e);
@@ -50,8 +53,7 @@ class ChatListController extends BaseListController<ChatData>
 
   @override
   Future reload() {
-    getListItems(query: _lastSearchQuery ?? "", isReload: true);
-    return super.reload();
+    return getListItems(query: _lastSearchQuery ?? "", isReload: true);
   }
 
   void archive(int index) async {

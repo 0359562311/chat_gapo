@@ -34,13 +34,17 @@ class Constants {
   /// CUSTOM CONFIG APP
   static const String languageKey = 'LANGUAGE';
 
+  static String chatApiDomain = env == Environment.staging
+      ? "https://staging-messenger.gapowork.vn/"
+      : 'https://staging-messenger.gapowork.vn/';
+
   static String apiDomain = env == Environment.staging
-      ? "https://api-testnet.jumpz.vkro.vn/"
-      : 'https://api-testnet.jumpz.vkro.vn/';
+      ? "https://staging-api.gapowork.vn/"
+      : 'https://staging-api.gapowork.vn/';
 
   static String requestEmailOTP = "auth/otp";
   static String loginWithOTP = "auth/login";
-  static String loginWithPassword = "auth/login_by_password";
+  static String loginWithPassword = "auth/v3.0/login";
   static String renewTokenPath = "auth/otp";
   static String getUserInfo = "accounts/me";
   static String activateCode = "auth/activate";
@@ -56,6 +60,8 @@ class Constants {
   static String buyNft = "nft_market/buy";
   static String sellNft = "nft_market/sell";
   static String openNft = "nft_inventory/open";
+
+  static String chatThreads = "chat/v3.3/threads";
 
   static int maxOTPTime = 60;
 

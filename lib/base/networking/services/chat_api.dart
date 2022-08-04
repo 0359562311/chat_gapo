@@ -8,19 +8,14 @@ import 'package:base_flutter/utils/string_utils.dart';
 import 'package:flutter/services.dart';
 
 class ChatAPI {
-  final ApiService _service = ApiService(Constants.apiDomain);
+  final ApiService _service = ApiService(Constants.chatApiDomain);
 
-  Future<ChatResponse> fetchChatList(ChatType chatType, int page, String query) {
-    if(page > 0) return Future.value(ChatResponse(data: []));
-    return rootBundle
-        .loadString("assets/json/chat_response.json")
-        .then((value) => (ChatResponse.fromJson(jsonDecode(value))))
-        .then((value) async {
-          value.data = value.data!.where((element) => element.name!.match(query) || element.lastMessage!.body!.match(query)).toList();
-          if(chatType == ChatType.notSeen) {
-            value.data = value.data!.where((element) => element.unreadCount! > 0).toList();
-          }
-          return value;
-        });
+  Future<ChatResponse> fetchChatList(
+      ChatType chatType, int? lastId, String query) async {
+    Map<String, dynamic> params = {"page_size": 100, "page_id": query};
+    if (lastId != null) params['last_id'] = lastId;
+    final res =
+        await _service.getData(endPoint: Constants.chatThreads, query: params);
+    return ChatResponse.fromJson(res.data);
   }
 }

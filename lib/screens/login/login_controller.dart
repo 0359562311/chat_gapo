@@ -19,8 +19,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class LoginController extends BaseController {
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController verificationCodeController = TextEditingController();
+  late TextEditingController usernameController;
+  late TextEditingController verificationCodeController;
   final AuthAPI _api = AuthAPI();
 
   RxBool isNextButtonEnabled = false.obs;
@@ -31,12 +31,14 @@ class LoginController extends BaseController {
   void onClose() {
     usernameController.dispose();
     verificationCodeController.dispose();
+    super.onClose();
   }
 
   @override
   void onInit() {
     super.onInit();
-
+    usernameController = TextEditingController();
+    verificationCodeController = TextEditingController();
     _binding();
   }
 

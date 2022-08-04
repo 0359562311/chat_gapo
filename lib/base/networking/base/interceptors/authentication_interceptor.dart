@@ -11,10 +11,11 @@ class AuthenticationInterceptor extends Interceptor {
     String token = TokenManager.accessToken();
     Map<String, String> headers = {
       'Authorization': 'Bearer $token',
-      'x-language': Utils.currentLanguageCode()
+      'x-gapo-lang': Utils.currentLanguageCode(),
+      "x-gapo-workspace-id": "581860791816317",
+      if (!options.path.contains("login")) "x-gapo-user-id": "1042179540"
     };
     options.headers.addAll(headers);
-
     handler.next(options);
   }
 }

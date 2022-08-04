@@ -38,9 +38,16 @@ class AuthAPI {
   Future<LoginResponse> loginWithPassword(String email, String password) async {
     try {
       String hashedPassword = password.hashSha256();
-      final response = await _service.postData(
-          endPoint: Constants.loginWithPassword,
-          body: {"email_address": email, "password_hashed": hashedPassword});
+      final response =
+          await _service.postData(endPoint: Constants.loginWithPassword, body: {
+        "email": "nguyenmanhtoan@gapo.com.vn",
+        "password":
+            "4bff60a3797bc8053cd40253218c93afa7962fb966d012c844e254ad7788147e",
+        "client_id": "6n6rwo86qmx7u8aahgrq",
+        "device_model": "Simulator iPhone 11",
+        "device_id": "76cce865cbad4d02",
+        "trusted_device": true,
+      });
       ApiResponse<LoginResponse> result =
           ApiResponse<LoginResponse>.fromJson(response.data);
       return result.data;
