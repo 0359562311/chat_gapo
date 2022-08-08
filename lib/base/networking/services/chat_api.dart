@@ -12,7 +12,7 @@ class ChatAPI {
 
   Future<ChatResponse> fetchChatList(
       ChatType chatType, int? lastId, String query) async {
-    Map<String, dynamic> params = {"page_size": 100, "page_id": query};
+    Map<String, dynamic> params = {"page_size": 100};
     if (lastId != null) params['last_id'] = lastId;
     final res =
         await _service.getData(endPoint: Constants.chatThreads, query: params);

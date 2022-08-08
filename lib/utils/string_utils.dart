@@ -57,9 +57,9 @@ extension StringExtension on String {
     return sha256.convert(utf8.encode(this)).toString();
   }
 
-  bool match(String other) {
+  bool match(String? other) {
     return _convertToNonSpecialCase(this)
-        .contains(_convertToNonSpecialCase(other));
+        .contains(_convertToNonSpecialCase(other ?? ""));
   }
 }
 
